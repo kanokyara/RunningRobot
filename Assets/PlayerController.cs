@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
 
     //状態を示す変数
     //0:何もしていない　1:走っている　2：ジャンプしている　3：ダメージを受けている
-    int state = 0;
+    public int state = 0;
 
     //前フレームの状態を表す変数
     //状態の切り替え判定に使う
@@ -29,13 +29,20 @@ public class PlayerController : MonoBehaviour
     private float velocityX = 5f;
 
     //地面と衝突しているかの判定
-    bool isGround;
+    public bool isGround;
 
     //敵と衝突しているかの判定
     bool isEnemy;
 
     //オブジェクトのスケール（左右反転用）
     float Scale = 0.8f;
+
+    //オーディオクリップ再生用オーディオソースコンポーネント取得のための変数
+    AudioSource audioSource;
+
+    //オーディオクリップ指定
+    public AudioClip SEJump;
+    public AudioClip SEDead;
 
     // Start is called before the first frame update
     void Start()
@@ -46,6 +53,8 @@ public class PlayerController : MonoBehaviour
         //rigidbody2Dコンポーネント取得
         this.rigid2D = GetComponent<Rigidbody2D>();
 
+        //オーディオソースコンポーネント取得
+        this.audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -72,7 +81,7 @@ public class PlayerController : MonoBehaviour
         void OnCollisionEnter2D(Collision2D collision)
     {
 
-        //Groundタグをつけた地面オブジェクトに接触しているか否か
+        //Groundタグをつけた地面オブジェクトに接触したか
         if (collision.gameObject.tag == "Ground")
         {
             isGround = true;
@@ -84,34 +93,48 @@ public class PlayerController : MonoBehaviour
             isEnemy = true;
         }
     }
+        //Groundタグをつけた地面オブジェクトから離れたか
+        void OnCollisionExit2D(Collision2D collision2)
+    {
+        if (collision2.gameObject.tag == "Ground")
+        {
+            isGround = false;
+        }
+    }
+        
 
     //各状態切り替わり時に1回だけ実行される処理
-    void StateStart()
+    public void StateStart()
     {
         //何もしていない状態：速度とアニメーションをリセットする
         if (state == 0)
         {
             this.rigid2D.velocity = new Vector2(0, 0);
             this.animator.SetBool("Run", false);
+            audioSource.Stop();
         }
 
         //走っている状態：走りアニメーションを再生する
         if (state == 1)
         {
             this.animator.SetBool("Run", true);
+            audioSource.Play();
         }
 
-        //ジャンプしている状態：Y方向に速度を与える
+        //ジャンプしている状態：走りアニメーションを停止
         if (state == 2)
         {
+            audioSource.Stop();
+            audioSource.PlayOneShot(SEJump, 1.0f);
             this.animator.SetBool("Run", false);
-            this.rigid2D.velocity = new Vector2(0, this.velocityY);
         }
 
-        //ダメージを受けている状態：ダメージアニメーションを再生する　速度をリセットする
-        //ゲームオーバー
+        //ゲームオーバー　速度をリセットする
         if (state == 3)
         {
+            this.animator.SetBool("Run", false);
+            audioSource.Stop();
+            audioSource.PlayOneShot(SEDead, 1.0f);
             this.animator.SetBool("Dead", true);
             if (transform.localScale.x == -Scale)
             {
@@ -147,9 +170,8 @@ public class PlayerController : MonoBehaviour
             }
 
             //スペースキーを押すとジャンプする
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && isGround)
             {
-                isGround = false;
                 this.rigid2D.velocity = new Vector2(0, this.velocityY);
             }
 
@@ -178,9 +200,8 @@ public class PlayerController : MonoBehaviour
                 this.rigid2D.velocity = new Vector2(-velocityX, this.rigid2D.velocity.y);
             }
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && isGround)
             {
-                isGround = false;
                 this.rigid2D.velocity = new Vector2(0, this.velocityY);
             }
 
@@ -217,11 +238,11 @@ public class PlayerController : MonoBehaviour
         //何もしていない状態：入力があれば走り、ジャンプへ
         if (state == 0)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && isGround)
             {
                 state = 2;
             }
-            if (Input.GetKey(KeyCode.RightArrow)&& Input.GetKey(KeyCode.LeftArrow))
+            if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow))
             {
                 state = 1;
             }
@@ -230,11 +251,12 @@ public class PlayerController : MonoBehaviour
         //走っている状態：入力なければ何もしていない状態へ、ジャンプ入力でジャンプ状態へ
         if (state == 1)
         {
-            if (Input.GetKeyUp(KeyCode.RightArrow) && Input.GetKeyUp(KeyCode.LeftArrow))
+            if (Input.GetKeyUp(KeyCode.RightArrow) || Input.GetKeyUp(KeyCode.LeftArrow))
             {
                 state = 0;
             }
-            if (Input.GetKeyDown(KeyCode.Space))
+
+            if (Input.GetKeyDown(KeyCode.Space) && isGround)
             {
                 state = 2;
             }

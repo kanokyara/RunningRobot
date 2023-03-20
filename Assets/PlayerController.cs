@@ -93,16 +93,7 @@ public class PlayerController : MonoBehaviour
             isEnemy = true;
         }
     }
-        //Groundタグをつけた地面オブジェクトから離れたか
-        void OnCollisionExit2D(Collision2D collision2)
-    {
-        if (collision2.gameObject.tag == "Ground")
-        {
-            isGround = false;
-        }
-    }
         
-
     //各状態切り替わり時に1回だけ実行される処理
     public void StateStart()
     {
@@ -121,12 +112,14 @@ public class PlayerController : MonoBehaviour
             audioSource.Play();
         }
 
-        //ジャンプしている状態：走りアニメーションを停止
+        //ジャンプしている状態：走りアニメーションを停止、上方向に速度を追加
         if (state == 2)
         {
+            isGround = false;
             audioSource.Stop();
             audioSource.PlayOneShot(SEJump, 1.0f);
             this.animator.SetBool("Run", false);
+            this.rigid2D.velocity = new Vector2(0, this.velocityY);
         }
 
         //ゲームオーバー　速度をリセットする
@@ -242,28 +235,28 @@ public class PlayerController : MonoBehaviour
             {
                 state = 2;
             }
-            if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow))
+            else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow))
             {
                 state = 1;
             }
         }
 
         //走っている状態：入力なければ何もしていない状態へ、ジャンプ入力でジャンプ状態へ
-        if (state == 1)
+        else if (state == 1)
         {
             if (Input.GetKeyUp(KeyCode.RightArrow) || Input.GetKeyUp(KeyCode.LeftArrow))
             {
                 state = 0;
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) && isGround)
+            else if (Input.GetKeyDown(KeyCode.Space) && isGround)
             {
                 state = 2;
             }
         }
 
         //ジャンプ状態：着地したら何もしていない状態へ
-        if (state == 2)
+        else if (state == 2)
         {
             if (isGround)
             {

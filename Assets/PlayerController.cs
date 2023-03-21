@@ -221,7 +221,16 @@ public class PlayerController : MonoBehaviour
                 transform.localScale = new Vector2(-Scale, Scale);
                 this.rigid2D.velocity = new Vector2(-velocityX, this.rigid2D.velocity.y);
             }
+
+            if (Input.GetKeyUp(KeyCode.Space))
+            {
+                if (this.rigid2D.velocity.y > 0)
+                {
+                    this.rigid2D.velocity *= this.dump;
+                }
+            }
         }
+
     }
 
     //Šeó‘Ô‚ÌØ‚è‘Ö‚í‚èˆ—

@@ -17,10 +17,11 @@ public class EnemyController : MonoBehaviour
     private Rigidbody2D rigid2D;
 
     //横移動の速度
-    private float speed = 3f;
+    private float speed = 2f;
 
     //地面の端にいるかどうかの判定
-    public bool isGround;
+    public bool isGroundL;
+    public bool isGroundR;
 
     //プレイヤーと衝突しているかの判定
     bool isPlayer;
@@ -46,6 +47,13 @@ public class EnemyController : MonoBehaviour
             StateStart();
             preState = state;
         }
+
+        //各状態のUpdate処理
+        StateUpdate();
+
+        //各状態の切り替わり判定
+        StateChange();
+
     }
     void OnCollisionEnter2D(Collision2D collision)
     {
@@ -56,17 +64,11 @@ public class EnemyController : MonoBehaviour
         }
         if (collision.gameObject.tag == "Ground")
         {
-            isGround = true;
+            isGroundL = true;
+            isGroundR = true;
         }
     }
 
-    void OnTriggerExit2D(Collider2D collision2)
-    {
-        if (collision2.gameObject.tag == "Ground")
-        {
-            isGround = false;
-        }
-    }
     //各状態切り替わり時に1回だけ実行される処理
     public void StateStart()
     {
@@ -89,8 +91,9 @@ public class EnemyController : MonoBehaviour
     {
         if (state == 0)
         {
+            this.animator.SetBool("Run", true);
             transform.localScale = new Vector2(Scale, Scale);
-            transform.Translate(this.speed * Time.deltaTime, 0, 0);
+            transform.Translate(-this.speed * Time.deltaTime, 0, 0);
         }
         else if (state == 1)
         {
@@ -102,14 +105,14 @@ public class EnemyController : MonoBehaviour
     {
         if (state == 0)
         {
-            if (isGround == false)
+            if (isGroundL == false)
             {
                 state = 1;
             }
         }
         else if (state == 1)
         {
-            if (isGround == false)
+            if (isGroundR == false)
             {
                 state = 0;
             }

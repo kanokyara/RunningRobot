@@ -4,12 +4,10 @@ using UnityEngine;
 
 public class BGMController : MonoBehaviour
 {
-    //オーディオソースを二つ用意
+    //オーディオソースを三つ用意
     public AudioSource source1;
     public AudioSource source2;
-
-    //敵と衝突しているかの判定
-    bool isEnemy;
+    public AudioSource source3;
 
     // Start is called before the first frame update
     void Start()
@@ -37,6 +35,13 @@ public class BGMController : MonoBehaviour
             source1.Stop();
             yield return new WaitForSeconds(0.5f);
             source2.Play();
+        }
+
+        if (collision.gameObject.name == "Goal")
+        {
+            source1.Stop();
+            yield return new WaitForSeconds(0.5f);
+            source3.Play();
         }
     }
 }

@@ -23,14 +23,14 @@ public class GroundLCheckerScript : MonoBehaviour
     {
         if (collision.gameObject.tag == "Ground")
         {
-            EnemyC.isGroundL = false;
+            EnemyC.isGround = false;
         }
     }
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Ground")
         {
-            EnemyC.isGroundL = true;
+            EnemyC.isGround = true;
         }
     }
 }

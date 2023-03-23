@@ -20,14 +20,17 @@ public class EnemyController : MonoBehaviour
     private float speed = 2f;
 
     //地面の端にいるかどうかの判定
-    public bool isGroundL;
-    public bool isGroundR;
+    public bool isGround;
 
     //プレイヤーと衝突しているかの判定
     bool isPlayer;
 
     //オブジェクトのスケール（左右反転用）
     float Scale = 0.8f;
+
+    public float statetimer;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -48,6 +51,8 @@ public class EnemyController : MonoBehaviour
             preState = state;
         }
 
+        statetimer += Time.deltaTime;
+
         //各状態のUpdate処理
         StateUpdate();
 
@@ -64,8 +69,7 @@ public class EnemyController : MonoBehaviour
         }
         if (collision.gameObject.tag == "Ground")
         {
-            isGroundL = true;
-            isGroundR = true;
+            isGround = true;
         }
     }
 
@@ -85,6 +89,9 @@ public class EnemyController : MonoBehaviour
             this.rigid2D.velocity = new Vector2(0, 0);
             this.animator.SetBool("Run", false);
         }
+
+        statetimer = 0;
+
     }
     //各状態のUpdate処理
     void StateUpdate()
@@ -105,14 +112,14 @@ public class EnemyController : MonoBehaviour
     {
         if (state == 0)
         {
-            if (isGroundL == false)
+            if (isGround == false && statetimer > 1)
             {
                 state = 1;
             }
         }
         else if (state == 1)
         {
-            if (isGroundR == false)
+            if (isGround == false && statetimer > 1)
             {
                 state = 0;
             }

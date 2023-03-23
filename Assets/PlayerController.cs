@@ -34,6 +34,9 @@ public class PlayerController : MonoBehaviour
     //敵と衝突しているかの判定
     bool isEnemy;
 
+    //ゴールと衝突しているかの判定
+    bool isGoal;
+
     //オブジェクトのスケール（左右反転用）
     float Scale = 0.8f;
 
@@ -43,6 +46,7 @@ public class PlayerController : MonoBehaviour
     //オーディオクリップ指定
     public AudioClip SEJump;
     public AudioClip SEDead;
+    public AudioClip SEClear;
 
     // Start is called before the first frame update
     void Start()
@@ -92,6 +96,10 @@ public class PlayerController : MonoBehaviour
         {
             isEnemy = true;
         }
+        if(collision.gameObject.tag == "Goal")
+        {
+            isGoal = true;
+        }
     }
         
     //各状態切り替わり時に1回だけ実行される処理
@@ -129,6 +137,21 @@ public class PlayerController : MonoBehaviour
             audioSource.Stop();
             audioSource.PlayOneShot(SEDead, 1.0f);
             this.animator.SetBool("Dead", true);
+            if (transform.localScale.x == -Scale)
+            {
+                transform.localScale = new Vector2(-Scale, Scale);
+            }
+            else
+            {
+                transform.localScale = new Vector2(Scale, Scale);
+            }
+            this.rigid2D.velocity = new Vector2(0, 0);
+        }
+        if (state == 4)
+        {
+            this.animator.SetBool("Run", false);
+            audioSource.Stop();
+            audioSource.PlayOneShot(SEClear, 5.0f);
             if (transform.localScale.x == -Scale)
             {
                 transform.localScale = new Vector2(-Scale, Scale);
@@ -277,6 +300,11 @@ public class PlayerController : MonoBehaviour
         if (isEnemy)
         {
             state = 3;
+        }
+        //ゴールに当たるとクリア
+        if(isGoal)
+        {
+            state = 4;
         }
     }
 }

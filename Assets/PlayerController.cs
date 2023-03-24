@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -37,8 +39,17 @@ public class PlayerController : MonoBehaviour
     //ゴールと衝突しているかの判定
     bool isGoal;
 
+    //博士が見つかったかの判定
+    bool isHakase;
+
     //オブジェクトのスケール（左右反転用）
     float Scale = 0.8f;
+
+    //ゲームオーバー時のテキスト
+    private GameObject gameOverText;
+
+    //クリア時のテキスト
+    private GameObject ClearText;
 
     //オーディオクリップ再生用オーディオソースコンポーネント取得のための変数
     AudioSource audioSource;
@@ -59,6 +70,12 @@ public class PlayerController : MonoBehaviour
 
         //オーディオソースコンポーネント取得
         this.audioSource = GetComponent<AudioSource>();
+
+        //ゲームオーバーテキストコンポーネント取得
+        this.gameOverText = GameObject.Find("GameOver");
+
+        //クリアテキストコンポーネント取得
+        this.ClearText = GameObject.Find("Clear");
     }
 
     // Update is called once per frame
@@ -96,9 +113,17 @@ public class PlayerController : MonoBehaviour
         {
             isEnemy = true;
         }
-        if(collision.gameObject.tag == "Goal")
+
+        //Goalタグをつけたゴールオブジェクトに接触しているか否か
+        if (collision.gameObject.tag == "Goal")
         {
             isGoal = true;
+        }
+
+        //Hakaseタグをつけた博士オブジェクトに接触しているか否か
+        if (collision.gameObject.tag == "Hakase")
+        {
+            isHakase = true;
         }
     }
         
@@ -146,7 +171,10 @@ public class PlayerController : MonoBehaviour
                 transform.localScale = new Vector2(Scale, Scale);
             }
             this.rigid2D.velocity = new Vector2(0, 0);
+            this.gameOverText.GetComponent<Text>().text = "GAME OVER\nPRESS ENTER";
         }
+
+        //ステージ1クリア
         if (state == 4)
         {
             this.animator.SetBool("Run", false);
@@ -161,6 +189,26 @@ public class PlayerController : MonoBehaviour
                 transform.localScale = new Vector2(Scale, Scale);
             }
             this.rigid2D.velocity = new Vector2(0, 0);
+            this.ClearText.GetComponent<Text>().text = "CLEAR!!\nPRESS ENTER";
+            PlayerPrefs.SetInt("Stage1Clear", 1);
+        }
+
+        //博士発見
+        if (state == 5)
+        {
+            this.animator.SetBool("Run", false);
+            audioSource.Stop();
+            if (transform.localScale.x == -Scale)
+            {
+                transform.localScale = new Vector2(-Scale, Scale);
+            }
+            else
+            {
+                transform.localScale = new Vector2(Scale, Scale);
+            }
+            this.rigid2D.velocity = new Vector2(0, 0);
+            this.ClearText.GetComponent<Text>().text = "PRESS ENTER";
+            PlayerPrefs.SetInt("Stage2Clear", 1);
         }
     }
 
@@ -254,6 +302,32 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        //ゲームオーバー
+        if (state == 3)
+        {
+            if (Input.GetKey(KeyCode.Return))
+            {
+                SceneManager.LoadScene("StageSelect");
+            }
+        }
+
+        //クリア
+        if (state == 4)
+        {
+            if (Input.GetKey(KeyCode.Return))
+            {
+                SceneManager.LoadScene("StageSelect");
+            }
+        }
+
+        //博士発見
+        if (state == 5)
+        {
+            if (Input.GetKey(KeyCode.Return))
+            {
+                SceneManager.LoadScene("ED");
+            }
+        }
     }
 
     //各状態の切り替わり処理
@@ -301,10 +375,17 @@ public class PlayerController : MonoBehaviour
         {
             state = 3;
         }
+
         //ゴールに当たるとクリア
         if(isGoal)
         {
             state = 4;
+        }
+
+        //博士を発見
+        if (isHakase)
+        {
+            state = 5;
         }
     }
 }

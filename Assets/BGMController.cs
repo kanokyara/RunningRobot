@@ -30,13 +30,6 @@ public class BGMController : MonoBehaviour
             source2.Play();
         }
 
-        if(collision.gameObject.name == "DeadLine")
-        {
-            source1.Stop();
-            yield return new WaitForSeconds(0.5f);
-            source2.Play();
-        }
-
         if (collision.gameObject.name == "Goal")
         {
             source1.Stop();

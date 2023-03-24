@@ -2,15 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GroundLCheckerScript : MonoBehaviour
+public class GroundCheckerScript : MonoBehaviour
 {
-    GameObject Enemy;
+    public GameObject Enemy;
     EnemyController EnemyC;
 
     // Start is called before the first frame update
     void Start()
     {
-        Enemy = GameObject.Find("Enemy");
         EnemyC = Enemy.GetComponent<EnemyController>();
     }
 

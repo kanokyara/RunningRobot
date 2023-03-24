@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - PlayerTag
   - Goal
+  - Hakase
   layers:
   - Default
   - TransparentFX
